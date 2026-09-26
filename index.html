@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Homework Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&family=Patrick+Hand&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<style>
+:root{
+  --page:#EEF3F1; --surface:#FFFFFF; --ink:#1E2B3A; --muted:#5B6B78; --line:#D5DFDC;
+  --accent:#F2B632; --accent-ink:#3A2A00; --teacher:#D6453D; --ok:#2E8B57; --chip:#E3EBE8; --paper:#FFFFFF;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--page:#141B20;--surface:#1D262D;--ink:#E7EEF2;--muted:#9AABB6;--line:#2E3A42;
+  --teacher:#FF7A6E;--chip:#26323A;--ok:#5BC98A;--paper:#FDFDFB;}}
+:root[data-theme="dark"]{color-scheme:dark;--page:#141B20;--surface:#1D262D;--ink:#E7EEF2;--muted:#9AABB6;--line:#2E3A42;
+  --teacher:#FF7A6E;--chip:#26323A;--ok:#5BC98A;--paper:#FDFDFB;}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 40px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:30px;font-weight:800}
+h2{font-size:21px;font-weight:800}
+h3{font-size:17px;font-weight:600}
+.label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 14px;font-weight:700;min-height:42px}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--teacher)}
+.btn.small{min-height:36px;padding:4px 10px}
+header.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px;margin-bottom:8px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:52px;height:52px;flex:none;filter:drop-shadow(0 2px 0 rgba(30,43,58,.18))}
+header.top p{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:12px;padding:3px;background:var(--surface);gap:3px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:7px 16px;font-weight:700;min-height:40px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
+.sync{font-size:13px;color:var(--muted);margin:0 0 16px}
+.kids{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.kid{display:flex;align-items:center;gap:8px;border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 14px 4px 4px;font-weight:700}
+.kid[aria-pressed="true"]{border-color:var(--accent)}
+.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;flex:none}
+.grid{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.acct{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--chip)}
+.acct small{display:block;color:var(--muted);word-break:break-all}
+.acct .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
+.inbox{display:flex;flex-direction:column;gap:6px}
+.item{display:grid;grid-template-columns:4px 1fr auto;gap:10px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px 10px 0;overflow:hidden;min-height:56px}
+.item[aria-current="true"]{border-color:var(--ink)}
+.item .stripe{align-self:stretch;background:var(--teacher)}
+.item.done .stripe{background:var(--ok)}
+.item b{display:block}
+.item span.sub{font-size:13px;color:var(--muted)}
+.pill{font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap;background:var(--chip)}
+.pill.due{color:var(--teacher)}
+.pill.in{color:var(--ok)}
+.teacher-note{border-left:4px solid var(--teacher);padding:10px 14px;background:var(--chip);border-radius:0 10px 10px 0}
+.teacher-note p{margin:6px 0 0;max-width:65ch;white-space:pre-wrap}
+.teacher-note ol{margin:8px 0 0;padding-left:22px}
+.attach{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.attach a{color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700;text-decoration:none}
+.tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tool{border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 10px;font-weight:700;min-width:44px;min-height:44px;display:inline-flex;align-items:center;gap:4px}
+.tool[aria-pressed="true"]{border-color:var(--ink);background:var(--chip)}
+.swatch{width:34px;height:34px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 2px var(--line);padding:0}
+.swatch[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink)}
+.sep{width:1px;height:28px;background:var(--line);margin-inline:4px}
+.sheet-box{position:relative;border-radius:10px;border:1px solid var(--line);background:var(--paper);overflow:hidden}
+canvas#sheetBg{display:block;width:100%;height:auto}
+canvas#sheet{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;-webkit-user-select:none;user-select:none}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.check{display:flex;gap:10px;align-items:flex-start}
+.check input{width:22px;height:22px;margin-top:1px;accent-color:var(--ok)}
+.done-box{border:2px solid var(--ok);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.done-box img,.review img.work{border:1px solid var(--line);border-radius:8px;max-width:min(100%,420px)}
+.fb{border-radius:12px;padding:12px 14px;background:var(--chip);border-left:4px solid var(--accent)}
+.fb .sticker{font-family:var(--display);font-size:20px;font-weight:800}
+.fb p{margin:4px 0 0;white-space:pre-wrap}
+textarea{width:100%;min-height:96px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--page)}
+input[type=text],input[type=date],select{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--page);min-height:42px}
+.form{display:flex;flex-direction:column;gap:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+@media (max-width:560px){.two{grid-template-columns:1fr}}
+.qlist{margin:0;padding-left:26px;display:flex;flex-direction:column;gap:8px}
+.qlist li{padding-left:4px}
+.qlist li>div{display:flex;gap:6px}
+.qlist li::marker{font-family:var(--display);font-weight:800;color:var(--teacher)}
+.drop{display:flex;flex-direction:column;gap:2px;border:2px dashed var(--line);border-radius:12px;padding:16px;cursor:pointer;background:var(--page);font-weight:700}
+.drop small{font-weight:400;color:var(--muted)}
+.drop.over{border-color:var(--accent)}
+.preview{display:flex;gap:12px;align-items:center}
+.preview img{width:90px;border:1px solid var(--line);border-radius:6px}
+.note{font-size:13px;color:var(--muted);margin:0}
+.example{font-size:11px;font-weight:700;background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:1px 6px;vertical-align:middle}
+.textbox{position:absolute;z-index:3;font-family:"Patrick Hand",cursive;font-size:22px;border:2px dashed var(--accent);background:#fff;color:#1E2B3A;padding:2px 6px;min-width:160px;border-radius:6px}
+.stage{position:relative}
+.textbox.unkind{border-color:var(--teacher);background:#FFECEA}
+.kind{margin:0;font-weight:700;color:var(--teacher);background:var(--chip);border-radius:10px;padding:8px 12px}
+.stickers{display:flex;flex-wrap:wrap;gap:8px}
+.stickers label{border:2px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:700;cursor:pointer;display:flex;gap:6px;align-items:center}
+.stickers input{accent-color:var(--ink)}
+.stickers label:has(input:checked){border-color:var(--ink);background:var(--chip)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--page);padding:10px 16px;border-radius:10px;font-weight:700;max-width:calc(100% - 32px);z-index:10}
+.badge{background:var(--teacher);color:#fff;border-radius:999px;padding:0 7px;font-size:12px;margin-left:4px}
+.feed{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.feed button{width:100%;display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px}
+.feed button.new{border-color:var(--accent);background:var(--chip)}
+.feed time{font-size:12px;color:var(--muted);white-space:nowrap}
+.sizewrap{display:inline-flex;align-items:center;gap:6px}
+.sizewrap input{width:140px;accent-color:var(--ink)}
+#sizeDot{display:inline-grid;place-items:center;width:44px;height:44px}
+details>summary{list-style:none}
+details>summary::-webkit-details-marker{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brand"><svg class="logo" viewBox="0 0 48 48" role="img" aria-label="Homework Desk logo">
+        <rect x="1" y="1" width="46" height="46" rx="13" fill="#F2B632"/>
+        <path d="M24 15.5c-5-2.6-10.2-3-16-1.2v21.4c5.8-1.8 11-1.4 16 1.2z" fill="#FFFFFF" stroke="#1E2B3A" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M24 15.5c5-2.6 10.2-3 16-1.2v21.4c-5.8-1.8-11-1.4-16 1.2z" fill="#FFFFFF" stroke="#1E2B3A" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M12.5 20.5h8M12.5 25h8M12.5 29.5h6" stroke="#8FB0DA" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M11 16.8v17" stroke="#E8A3A0" stroke-width="1.4"/>
+        <path d="M28 25.2l3.4 3.4 6-7.2" fill="none" stroke="#2E8B57" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h1>Homework Desk</h1></div>
+      <p>Teachers set questions and upload worksheets. Children write and draw on them, check their work, and hand it in.</p>
+    </div>
+    <div class="seg" role="group" aria-label="Who is using the app">
+      <button id="modeChild" aria-pressed="true">Child &amp; parent</button>
+      <button id="modeTeacher" aria-pressed="false">Teacher</button>
+    </div>
+    <div class="row"><button class="btn" id="msgBtn">🔔 Messages<span class="badge" id="badge" hidden></span></button><button class="btn ghost" id="resetBtn">Reset</button></div>
+  </header>
+  <p class="sync" id="sync">Loading…</p>
+  <section class="panel" id="panel" hidden style="margin-bottom:16px"></section>
+
+  <!-- CHILD MODE -->
+  <section id="childMode">
+    <div class="kids" id="kids" aria-label="Children"></div>
+    <div class="grid">
+      <aside class="panel" aria-label="Accounts and assignments">
+        <div class="label">From the teacher</div>
+        <div id="inbox" class="inbox"></div>
+
+        <div class="label" style="margin-top:8px">School accounts</div>
+        <div id="accounts" class="inbox"></div>
+        <details id="addAcct">
+          <summary class="btn ghost" style="display:inline-block">+ Link an account</summary>
+          <form class="form" id="acctForm" style="margin-top:10px">
+            <label for="acctKid" class="label">Child</label>
+            <select id="acctKid" required></select>
+            <label for="acctType" class="label">Account type</label>
+            <select id="acctType">
+              <option>Google Classroom</option><option>Gmail</option><option>Microsoft Teams</option>
+              <option>Seesaw</option><option>School portal</option><option>Other</option>
+            </select>
+            <label for="acctEmail" class="label">Email or username</label>
+            <input id="acctEmail" type="text" placeholder="name@school.edu" required>
+            <button class="btn primary" type="submit">Link account</button>
+          </form>
+        </details>
+        <details id="addKid">
+          <summary class="btn ghost" style="display:inline-block">+ Add a child</summary>
+          <form class="form" id="kidForm" style="margin-top:10px">
+            <label for="kidName" class="label">Name</label>
+            <input id="kidName" type="text" placeholder="Child's first name" required>
+            <label for="kidYear" class="label">Year or grade</label>
+            <select id="kidYear" required></select>
+            <label for="kidAge" class="label">Age</label>
+            <select id="kidAge" required></select>
+            <button class="btn primary" type="submit">Add child</button>
+          </form>
+        </details>
+      </aside>
+      <main class="panel" id="work" aria-live="polite"></main>
+    </div>
+  </section>
+
+  <!-- TEACHER MODE -->
+  <section id="teacherMode" hidden>
+    <div class="grid">
+      <aside class="panel" aria-label="Homework you have set">
+        <button class="btn primary" id="newHw">+ Set new homework</button>
+        <div class="label" style="margin-top:6px">Children</div>
+        <div id="tkids" class="kids" style="margin:0"></div>
+        <p class="note">Tap a child to open their page and see it the way they do.</p>
+        <div class="label" style="margin-top:6px">Homework set</div>
+        <div id="tlist" class="inbox"></div>
+      </aside>
+      <main class="panel" id="tmain" aria-live="polite"></main>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<datalist id="subjects"><option>Maths</option><option>English</option><option>Science</option><option>Arabic</option><option>French</option><option>Hindi</option><option>Sanskrit</option><option>EVS</option><option>Social Science</option><option>Marathi</option><option>Tamil</option><option>Islamic Studies</option><option>Social Studies</option><option>History</option><option>Geography</option><option>Computing</option><option>Art</option><option>Music</option></datalist>
+
+<script>
+/* ---------- helpers ---------- */
+const COLORS=["#1E2B3A","#2F6FD6","#D6453D","#2E8B57","#E08A00","#8A4FC7"];
+const AV=["#2F6FD6","#8A4FC7","#2E8B57","#D6453D","#E08A00"];
+const STICKERS={great:"⭐ Great work",good:"👍 Good effort",again:"✏️ Please try again"};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const UK=["Reception",...Array.from({length:13},(_,i)=>"Year "+(i+1))];
+const IN=["Nursery","LKG","UKG",...Array.from({length:12},(_,i)=>"Class "+(i+1))];
+const US=["Pre-K","Kindergarten",...Array.from({length:12},(_,i)=>"Grade "+(i+1))];
+function yearOptions(sel){const o=a=>a.map(y=>`<option ${y===sel?"selected":""}>${y}</option>`).join("");
+  return `<option value="">Choose…</option><optgroup label="UK / British curriculum">${o(UK)}</optgroup><optgroup label="US / American curriculum">${o(US)}</optgroup><optgroup label="Indian curriculum (CBSE, ICSE, State board)">${o(IN)}</optgroup>`}
+function ageOptions(sel){let s='<option value="">Choose…</option>';for(let a=3;a<=18;a++)s+=`<option value="${a}" ${+sel===a?"selected":""}>${a} years old</option>`;return s}
+const kidLine=k=>k?[k.year,k.age?"Age "+k.age:""].filter(Boolean).join(" · "):"";
+const fmtDate=d=>{if(!d)return"";const x=new Date(d+"T00:00");return isNaN(x)?d:x.toLocaleDateString([], {weekday:"short",day:"numeric",month:"short"})};
+const dueText=h=>{if(!h.due)return"";let t=fmtDate(h.due);if(h.dueTime){const [H,M]=h.dueTime.split(":");const x=new Date(2000,0,1,+H,+M);t+=" at "+x.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}return t};
+const fmtTime=d=>{const x=new Date(d);return isNaN(x)?"":x.toLocaleString([], {weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})};
+const src=id=>!id?"":/^(data:|blob:|\/)/.test(id)?id:"/_blob/"+id;
+const loadImg=u=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=u});
+const toBlob=(c,q=.85)=>new Promise(r=>c.toBlob(r,"image/jpeg",q));
+const ls={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3500)}
+
+/* ---------- data layer: shared store, or this device only ---------- */
+const S={kids:[],accounts:[],homework:[]};
+let db=null,assets=null,LOCAL=false,ready=false;
+const kidOf=id=>S.kids.find(k=>k.id===id);
+const hwOf=id=>S.homework.find(h=>h.id===id);
+const kidsSorted=()=>[...S.kids].sort((a,b)=>(a.created||0)-(b.created||0)||String(a.name).localeCompare(b.name));
+function saveLocal(){if(!ls.set("hwdesk2",S))toast("This device is out of space for saved homework.")}
+let lastLocal=0;
+async function put(col,id,data){lastLocal=Date.now();
+  if(LOCAL){const i=S[col].findIndex(x=>x.id===id);const r={id,...data};i<0?S[col].push(r):S[col][i]=r;saveLocal();onData();return}
+  await db.doc(col+"/"+id).set(data)}
+async function patch(col,id,data){lastLocal=Date.now();
+  if(LOCAL){const r=S[col].find(x=>x.id===id);if(r)Object.assign(r,data);saveLocal();onData();return}
+  await db.doc(col+"/"+id).update(data)}
+async function removeDoc(col,id){
+  if(LOCAL){S[col]=S[col].filter(x=>x.id!==id);saveLocal();onData();return}
+  await db.doc(col+"/"+id).delete()}
+async function upload(blob){
+  if(LOCAL)return await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(blob)});
+  if(!assets)throw{message:"You can view homework here, but you don't have permission to upload files."};
+  try{return (await assets.upload(blob,{type:blob.type||"image/jpeg"})).id}
+  catch(e){const m={too_large:"That file is over 20 MB. Try a smaller photo or fewer pages.",unsupported_type:"That kind of file can't be used. Use a photo (JPG or PNG) or a PDF.",
+    quota_or_state:"Storage for this app is full.",rate_limited:"Too many uploads at once. Wait a moment and try again."}[e&&e.code];
+    throw{message:m||"The upload didn't go through. Check your connection and try again."}}}
+
+async function init(){
+  renderMode();
+  const c=window.claude;
+  if(c&&c.use){[db,assets]=await Promise.all([c.use("db").catch(()=>null),c.use("assets").catch(()=>null)])}
+  if(!db){LOCAL=true;const d=ls.get("hwdesk2");if(d){S.kids=d.kids||[];S.accounts=d.accounts||[];S.homework=d.homework||[]}ready=true;
+    $("#sync").textContent="Saving on this device only. Homework set here won't show on your other devices.";onData();return}
+  $("#sync").textContent="Saved to your account. Open this page on the iPad or the PC and everything is there.";
+  const got=new Set();
+  ["kids","accounts","homework"].forEach(name=>db.collection(name).onSnapshot(snap=>{
+    S[name]=snap.docs.map(x=>({id:x.id,...x.data()}));got.add(name);if(got.size===3)ready=true;if(ready)onData()},
+    ()=>{$("#sync").textContent="Lost the connection to saved homework. Reload the page to reconnect."}));
+}
+
+/* ---------- mode + state ---------- */
+let mode=ls.get("hwd-mode")==="teacher"?"teacher":"child";
+const cur={kid:null,hw:null};const tv={hw:null};
+let wSig=null,tSig=null;
+function renderMode(){
+  $("#modeChild").setAttribute("aria-pressed",mode==="child");$("#modeTeacher").setAttribute("aria-pressed",mode==="teacher");
+  $("#childMode").hidden=mode!=="child";$("#teacherMode").hidden=mode!=="teacher";
+  if(!ready){$("#work").innerHTML=$("#tmain").innerHTML='<p class="note">Loading homework…</p>';return}
+  mode==="child"?renderWork():renderTMain();
+}
+$("#modeChild").onclick=()=>{mode="child";ls.set("hwd-mode",mode);renderMode()};
+$("#modeTeacher").onclick=()=>{mode="teacher";ls.set("hwd-mode",mode);renderMode()};
+
+function onData(){
+  if(!kidOf(cur.kid))cur.kid=kidsSorted()[0]?.id||null;
+  renderKids();renderAccounts();renderInbox();renderTList();fillKidSelects();notify();renderBadge();if(panelMode==="msg")renderPanel();
+  if(mode==="child"){
+    const s=cur.hw?sigW(hwOf(cur.hw)):"home:"+homeSig();
+    const typing=!cur.hw&&$("#work").contains(document.activeElement);
+    if(s!==wSig&&!typing)renderWork();
+  }else if(tv.hw){if(sigT(hwOf(tv.hw))!==tSig)renderTMain()}
+  else if(!$("#hwForm"))renderTMain();
+}
+const sigW=h=>JSON.stringify(h?[h.done,h.image,h.feedback,h.sticker,h.sheet,h.questions,h.note,h.title,h.due]:null);
+const sigT=h=>JSON.stringify(h?[h.done,h.image,h.feedback,h.sticker,h.msg,h.title]:null);
+const homeSig=()=>{const k=kidOf(cur.kid);return JSON.stringify([k,S.homework.filter(h=>h.kid===cur.kid).map(h=>h.done)])};
+/* ---------- messages ---------- */
+function events(){const ev=[];S.homework.forEach(h=>{const k=(kidOf(h.kid)||{}).name||"A child",t=`“${h.title}”`,b={hw:h.id,kid:h.kid};
+  if(h.created>1e12)ev.push({...b,at:h.created,icon:"📬",text:`${h.teacher} sent ${k} ${t}${h.due?", due "+dueText(h):""}`});
+  if(h.startedAt)ev.push({...b,at:h.startedAt,icon:"✏️",text:`${k} started ${t}`});
+  const d=Date.parse(h.doneAt);if(h.done&&d)ev.push({...b,at:d,icon:"✅",text:`${k} finished and handed in ${t}`});
+  const f=Date.parse(h.feedbackAt);if(f)ev.push({...b,at:f,icon:"💬",text:`${h.teacher} marked ${t}${h.sticker?": "+STICKERS[h.sticker]:""}`})});
+  return ev.sort((a,b)=>b.at-a.at).slice(0,40)}
+const ago=t=>{const s=(Date.now()-t)/1000;return s<60?"just now":s<3600?Math.floor(s/60)+" min ago":s<86400?Math.floor(s/3600)+" h ago":fmtTime(t)};
+let seen=ls.get("hwd-seen")||0,toastedTo=null,panelMode=null;
+function renderBadge(){const n=events().filter(e=>e.at>seen).length;$("#badge").hidden=!n;$("#badge").textContent=n}
+function notify(){const ev=events();const top=ev[0]?ev[0].at:0;
+  if(toastedTo===null){toastedTo=top;return}
+  const fresh=ev.filter(e=>e.at>toastedTo);toastedTo=Math.max(toastedTo,top);
+  if(fresh.length&&Date.now()-lastLocal>4000)toast(fresh[0].icon+" "+fresh[0].text)}
+function renderPanel(){const p=$("#panel");p.hidden=!panelMode;$("#msgBtn").setAttribute("aria-expanded",panelMode==="msg");if(!panelMode)return;
+  if(panelMode==="msg"){const ev=events();
+    p.innerHTML=`<div class="row" style="justify-content:space-between"><h3>Messages</h3><button class="btn ghost small" id="pClose">Close</button></div>
+    <p class="note">You get a message here when homework is sent, when a child starts it, when they finish, and when it's marked. New ones also pop up at the bottom of the screen while the app is open.</p>
+    ${ev.length?`<ul class="feed">${ev.map((e,i)=>`<li><button data-i="${i}" class="${e.at>seen?"new":""}"><span>${e.icon}</span><span>${esc(e.text)}</span><time>${esc(ago(e.at))}</time></button></li>`).join("")}</ul>`:`<p class="note">No messages yet.</p>`}`;
+    p.querySelectorAll(".feed button").forEach(b=>b.onclick=()=>{const e=ev[+b.dataset.i];panelMode=null;renderPanel();
+      if(mode==="child"){cur.kid=e.kid;cur.hw=e.hw;onData();renderWork()}else{tv.hw=e.hw;renderTList();renderTMain()}});
+    seen=Math.max(seen,ev[0]?ev[0].at:0);ls.set("hwd-seen",seen);renderBadge();
+  }else{
+    p.innerHTML=`<div class="row" style="justify-content:space-between"><h3>Reset</h3><button class="btn ghost small" id="pClose">Close</button></div>
+    <p class="note">To wipe one worksheet, open it and use <b>Reset sheet</b>. These buttons reset the whole app${LOCAL?" on this device":" on every device"}.</p>
+    <div class="row"><button class="btn" id="rEx">Remove the examples</button><button class="btn danger" id="rAll">Reset everything</button></div>
+    <p class="note" id="rMsg"></p>`;
+    const arm=(id,label,fn)=>{let a=false;$(id).onclick=async()=>{const b=$(id);if(!a){a=true;b.textContent="Tap again to confirm";setTimeout(()=>{a=false;if($(id))$(id).textContent=label},4000);return}
+      b.disabled=true;b.textContent="Working…";try{await fn();$("#rMsg").textContent="Done."}catch(e){$("#rMsg").textContent="Some items couldn't be removed. Try again."}b.disabled=false;b.textContent=label;a=false}};
+    arm("#rEx","Remove the examples",()=>wipe(x=>x.example));
+    arm("#rAll","Reset everything",async()=>{await wipe(()=>true);Object.keys(localStorage).forEach(k=>{if(k.startsWith("hwd-draft:"))ls.del(k)});seen=0;ls.set("hwd-seen",0)});
+  }
+  $("#pClose").onclick=()=>{panelMode=null;renderPanel()};
+}
+async function wipe(test){for(const col of ["homework","accounts","kids"])for(const x of S[col].filter(test))await removeDoc(col,x.id);
+  cur.hw=null;tv.hw=null;onData();mode==="child"?renderWork():renderTMain()}
+$("#msgBtn").onclick=()=>{panelMode=panelMode==="msg"?null:"msg";renderPanel()};
+$("#resetBtn").onclick=()=>{panelMode=panelMode==="reset"?null:"reset";renderPanel()};
+
+function fillKidSelects(){
+  ["#acctKid","#fKid"].forEach(sel=>{const el=$(sel);if(!el)return;const v=el.value||(sel==="#acctKid"?cur.kid:"");
+    el.innerHTML=(sel==="#fKid"?'<option value="">Choose a child…</option>':"")+kidsSorted().map(k=>`<option value="${k.id}">${esc(k.name)}${k.year?" ("+esc(k.year)+")":""}</option>`).join("");
+    if(v&&kidOf(v))el.value=v});
+}
+
+/* ---------- child side ---------- */
+function renderKids(){
+  const ks=kidsSorted();
+  $("#kids").innerHTML=ks.map((k,i)=>`<button class="kid" aria-pressed="${k.id===cur.kid}" data-k="${k.id}">
+    <span class="avatar" style="background:${AV[i%AV.length]}">${esc((k.name||"?")[0])}</span><span style="text-align:left;line-height:1.1">${esc(k.name)}<small style="display:block;font-weight:400;font-size:12px;color:var(--muted)">${esc(kidLine(k))}</small></span></button>`).join("");
+  $("#kids").querySelectorAll(".kid").forEach(b=>b.onclick=()=>{cur.kid=b.dataset.k;cur.hw=null;renderKids();renderAccounts();renderInbox();fillKidSelects();renderWork()});
+}
+function renderAccounts(){
+  const a=S.accounts.filter(x=>x.kid===cur.kid);
+  $("#accounts").innerHTML=a.length?a.map(x=>`<div class="acct"><span class="dot"></span><div><b>${esc(x.type)}</b>
+    ${x.example?' <span class="example">Example</span>':""}<small>${esc(x.email)}</small></div></div>`).join("")
+    :`<p class="note">No account linked for this child yet.</p>`;
+}
+function hwPill(h){
+  if(h.done&&h.feedback)return`<span class="pill in">Marked ${esc((STICKERS[h.sticker]||"").split(" ")[0])}</span>`;
+  if(h.done)return`<span class="pill in">Handed in</span>`;
+  if(h.sticker==="again")return`<span class="pill due">Try again</span>`;
+  return`<span class="pill due">${h.due?"Due "+esc(dueText(h)):"To do"}</span>`}
+function renderInbox(){
+  const list=S.homework.filter(h=>h.kid===cur.kid).sort((a,b)=>(!!a.done-!!b.done)||String(a.due||"~").localeCompare(String(b.due||"~")));
+  $("#inbox").innerHTML=!cur.kid?`<p class="note">Add a child below to get started.</p>`:list.length?list.map(h=>`<button class="item ${h.done?"done":""}" data-h="${h.id}" aria-current="${h.id===cur.hw}">
+    <span class="stripe"></span><span><b>${esc(h.title)}</b><span class="sub">${esc(h.subject)} · ${esc(h.teacher)}</span></span>${hwPill(h)}</button>`).join("")
+    :`<p class="note">Nothing from the teacher yet.</p>`;
+  $("#inbox").querySelectorAll(".item").forEach(b=>b.onclick=()=>{cur.hw=b.dataset.h;renderInbox();renderWork()});
+}
+function attachments(h){
+  const f=(h.files||[]).filter(x=>x&&x.id);
+  return f.length?`<div class="attach">${f.map(x=>`<a href="${esc(src(x.id))}" target="_blank" rel="noopener">📎 ${esc(x.name||"Worksheet")}</a>`).join("")}</div>`:""}
+function teacherNote(h){return`<section class="teacher-note" aria-label="What the teacher sent">
+   <div class="label" style="color:var(--teacher)">${esc(h.teacher)} sent</div>
+   ${h.note?`<p>${esc(h.note)}</p>`:""}
+   ${(h.questions||[]).length?`<ol>${h.questions.map(q=>`<li>${esc(q)}</li>`).join("")}</ol>`:""}
+   ${attachments(h)}</section>`}
+function feedbackBox(h){return h.feedback||h.sticker?`<div class="fb"><div class="label">${esc(h.teacher)} says</div>
+  ${h.sticker?`<div class="sticker">${esc(STICKERS[h.sticker]||"")}</div>`:""}${h.feedback?`<p>${esc(h.feedback)}</p>`:""}</div>`:""}
+
+function renderWork(){
+  const w=$("#work");
+  if(!ready){w.innerHTML='<p class="note">Loading homework…</p>';return}
+  let h=cur.hw&&hwOf(cur.hw);
+  if(cur.hw&&!h){cur.hw=null}
+  wSig=cur.hw?sigW(h):"home:"+homeSig();
+  if(!cur.kid){w.innerHTML=`<h2>Welcome to Homework Desk</h2><p class="note">Use <b>+ Add a child</b> on the left to add your child with their year and age. Then switch to <b>Teacher</b> at the top to set homework, or link their school account.</p>`;return}
+  const kid=kidOf(cur.kid);
+  if(!h){
+    const open=S.homework.filter(x=>x.kid===cur.kid&&!x.done).length;
+    w.innerHTML=`<div class="label">${esc(kid.name)} · ${esc(kidLine(kid)||"Year and age not set")}</div>
+      <h2>${open?`${open} piece${open>1?"s":""} of homework to do`:"All homework handed in"}</h2>
+      <p class="note">Pick homework on the left to open it. Write, draw or type on the sheet, add a photo or PDF of work done on paper, then check it and hand it in.</p>
+      <form class="form" id="editKid" style="max-width:360px;border-top:1px solid var(--line);padding-top:12px">
+        <div class="label">${esc(kid.name)}'s year and age</div>
+        <label for="editYear" class="note">Year or grade</label><select id="editYear">${yearOptions(kid.year)}</select>
+        <label for="editAge" class="note">Age</label><select id="editAge">${ageOptions(kid.age)}</select>
+        <div class="row"><button class="btn primary" type="submit">Save</button></div>
+      </form>`;
+    $("#editKid").onsubmit=async e=>{e.preventDefault();try{await patch("kids",kid.id,{year:$("#editYear").value,age:+$("#editAge").value||null});document.activeElement.blur();toast("Saved")}catch(err){toast("Couldn't save. Try again.")}};
+    return;
+  }
+  w.innerHTML=`
+   <div class="row" style="justify-content:space-between">
+     <div><div class="label">${esc(h.subject)}${h.due?" · Due "+esc(dueText(h)):""} ${h.example?'<span class="example">Example</span>':""}</div><h2>${esc(h.title)}</h2></div>
+     <button class="btn ghost" id="back">Close</button>
+   </div>
+   ${teacherNote(h)}
+   ${h.done?doneView(h):(h.sticker==="again"?feedbackBox(h):"")+workView()}`;
+  $("#back").onclick=()=>{cur.hw=null;renderInbox();renderWork()};
+  if(h.done)bindDone(h);else setupCanvas(h);
+}
+function workView(){return`
+   <div class="tools" role="toolbar" aria-label="Writing and drawing tools">
+     <button class="tool" data-t="pen" aria-pressed="true">✏️ Pen</button>
+     <button class="tool" data-t="marker" aria-pressed="false">🖍 Highlighter</button>
+     <button class="tool" data-t="text" aria-pressed="false">Aa Type</button>
+     <button class="tool" data-t="eraser" aria-pressed="false">Eraser</button>
+     <button class="tool" data-t="hand" aria-pressed="false">✋ Scroll</button>
+     <span class="sep"></span>
+     ${COLORS.map((c,i)=>`<button class="swatch" data-c="${c}" style="background:${c}" aria-label="Colour ${i+1}" aria-pressed="${i===0}"></button>`).join("")}
+     <span class="sep"></span>
+     <span class="sizewrap"><label for="size" class="note" id="sizeLbl">Pen size</label>
+     <input type="range" id="size" min="2" max="60"><span id="sizeDot" aria-hidden="true"><span></span></span></span>
+   </div>
+   <div class="tools">
+     <button class="tool" id="undo">↶ Undo</button>
+     <button class="tool" id="clear">↺ Reset sheet</button>
+     <label class="tool" for="photo" style="cursor:pointer">📷 Add photo or PDF</label>
+     <input type="file" id="photo" accept="image/*,application/pdf" hidden>
+     ${LOCAL?"":`<button class="tool" id="cloud">☁️ Save to finish on another device</button>`}
+   </div>
+   <div class="stage" id="stage"><div class="sheet-box"><canvas id="sheetBg" aria-hidden="true"></canvas><canvas id="sheet" aria-label="Homework sheet to write and draw on"></canvas></div></div>
+   <p class="note">On iPad, the Apple Pencil writes and your hand won't leave marks. Use <b>Scroll</b> to move up and down the sheet with a finger. Tap <b>Type</b>, then tap the sheet to type an answer. The eraser only rubs out your own writing, never the lines or questions.</p>
+   <section class="form" aria-label="Check before handing in">
+     <div class="label">Check before handing in</div>
+     <label class="check"><input type="checkbox" id="c1"><span>I answered every question</span></label>
+     <label class="check"><input type="checkbox" id="c2"><span>I checked my work</span></label>
+     <label class="check"><input type="checkbox" id="c3"><span>A grown-up looked at it</span></label>
+     <label for="msg" class="label">Message to the teacher (optional)</label>
+     <input id="msg" type="text" placeholder="e.g. I found number 5 tricky">
+     <p class="kind" id="msgKind" hidden>💛 That's not kind. Try saying it in a nicer way.</p>
+     <div class="row"><button class="btn primary" id="handin" disabled>Hand in homework</button></div>
+   </section>`}
+function doneView(h){return`
+  <div class="done-box">
+    <div class="row" style="justify-content:space-between"><h3>Handed in ${esc(fmtTime(h.doneAt))}</h3><span class="pill in">✓ Confirmed</span></div>
+    ${feedbackBox(h)||`<p class="note">Waiting for ${esc(h.teacher)} to look at it.</p>`}
+    <img src="${esc(src(h.image))}" alt="Finished homework sheet">
+    ${h.msg?`<p class="note">Your message: ${esc(h.msg)}</p>`:""}
+    <details><summary class="btn ghost" style="display:inline-block">Also send it by email</summary>
+      <div class="form" style="margin-top:8px">
+        <p class="note">If the teacher uses school email instead of this app, save the picture above (long-press on iPad, right-click on PC) and send it with this message.</p>
+        <textarea id="mail" readonly>${esc(mailText(h))}</textarea>
+        <div class="row"><button class="btn" id="copy">Copy message</button></div>
+      </div></details>
+    <div class="row"><button class="btn" id="redo">Change it and hand in again</button></div>
+  </div>`}
+function mailText(h){const k=kidOf(h.kid)||{name:""};const a=S.accounts.find(x=>x.kid===h.kid);
+  return `To: ${h.teacher}\nFrom: ${k.name}${a?" ("+a.email+")":""}\nSubject: ${h.subject} homework: ${h.title}\n\nDear ${h.teacher},\n\nHere is my ${String(h.subject).toLowerCase()} homework (${h.title}). The finished sheet is attached.${h.msg?"\n\n"+h.msg:""}\n\nThank you,\n${k.name}`}
+function bindDone(h){
+  $("#copy").onclick=async()=>{const t=$("#mail");try{await navigator.clipboard.writeText(t.value);toast("Message copied")}catch(e){t.focus();t.select();toast("Message selected. Press Copy.")}};
+  $("#redo").onclick=async()=>{ls.del("hwd-draft:"+h.id);try{await patch("homework",h.id,{done:false})}catch(e){toast("Couldn't reopen it. Try again.")}};
+}
+
+/* ---------- worksheet files (photo or PDF) ---------- */
+async function fileToSheet(file){
+  const isPdf=file.type==="application/pdf"||/\.pdf$/i.test(file.name||"");
+  const out=document.createElement("canvas"),W=1100;
+  if(isPdf){
+    if(!window.pdfjsLib)throw{message:"The PDF reader didn't load. Try a photo or screenshot of the sheet instead."};
+    const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+    const n=Math.min(pdf.numPages,4),pages=[];
+    for(let i=1;i<=n;i++){const p=await pdf.getPage(i);const v0=p.getViewport({scale:1});const vp=p.getViewport({scale:W/v0.width});
+      const c=document.createElement("canvas");c.width=Math.round(vp.width);c.height=Math.round(vp.height);const cx=c.getContext("2d");
+      cx.fillStyle="#fff";cx.fillRect(0,0,c.width,c.height);await p.render({canvasContext:cx,viewport:vp}).promise;pages.push(c)}
+    out.width=W;out.height=pages.reduce((s,c)=>s+c.height,0)+(pages.length-1)*16;
+    const o=out.getContext("2d");o.fillStyle="#D5DFDC";o.fillRect(0,0,out.width,out.height);
+    let y=0;pages.forEach(c=>{o.drawImage(c,0,y);y+=c.height+16});
+    return{blob:await toBlob(out),pages:pdf.numPages,shown:n,isPdf};
+  }
+  const url=URL.createObjectURL(file);
+  try{const img=await loadImg(url);const w=Math.min(W,img.naturalWidth);out.width=w;out.height=Math.round(img.naturalHeight*w/img.naturalWidth);
+    const o=out.getContext("2d");o.fillStyle="#fff";o.fillRect(0,0,out.width,out.height);o.drawImage(img,0,0,out.width,out.height);
+    return{blob:await toBlob(out),pages:1,shown:1,isPdf}}
+  catch(e){throw{message:"That picture couldn't be opened. Try a JPG or PNG."}}
+  finally{URL.revokeObjectURL(url)}
+}
+
+/* ---------- the sheet: paper layer underneath, writing layer on top ---------- */
+let cv,ctx,bgc,bctx,H,drawing=false,last=null,undo=[],penSeen=false,tool="pen",color=COLORS[0],sizes=Object.assign({pen:5,marker:24,eraser:30,text:30},ls.get("hwd-sizes")||{}),draftT,token=0,bgCustom=false;
+function wrap(m,text,maxW){const words=String(text).split(/\s+/),lines=[];let line="";
+  words.forEach(w=>{const t=line?line+" "+w:w;if(m.measureText(t).width>maxW&&line){lines.push(line);line=w}else line=t});if(line)lines.push(line);return lines.length?lines:[""]}
+function layout(h,bg){
+  const W=900,top=120,bgH=bg?Math.round(bg.naturalHeight*860/bg.naturalWidth):0,qTop=top+(bg?bgH+36:20);
+  const m=document.createElement("canvas").getContext("2d");m.font="26px 'Patrick Hand', cursive";
+  let row=0;const qs=(h.questions||[]).map((q,i)=>{const lines=wrap(m,q,W-130);const r={i,lines,row};row+=lines.length+3;return r});
+  const height=Math.max(qTop+(row+5)*34+30,bg?0:760);
+  return{W,top,bgH,qTop,qs,height};
+}
+function paintPaper(h,bg,L){
+  const c=bctx;c.fillStyle="#FFFFFF";c.fillRect(0,0,bgc.width,bgc.height);
+  c.fillStyle="#1E2B3A";c.font="700 28px 'Baloo 2', sans-serif";c.fillText(h.title,40,54);
+  const k=kidOf(h.kid);c.font="17px 'Atkinson Hyperlegible', sans-serif";c.fillStyle="#5B6B78";
+  c.fillText([k&&k.name,kidLine(k),h.subject,h.teacher,h.due?"Due "+dueText(h):""].filter(Boolean).join(" · "),40,86);
+  if(bg){c.drawImage(bg,20,L.top,860,L.bgH);c.strokeStyle="#D5DFDC";c.lineWidth=1;c.strokeRect(20,L.top,860,L.bgH)}
+  c.strokeStyle="#B8CCE4";c.lineWidth=1.2;
+  for(let y=L.qTop+34;y<bgc.height;y+=34){c.beginPath();c.moveTo(0,y);c.lineTo(bgc.width,y);c.stroke()}
+  c.strokeStyle="#E8A3A0";c.lineWidth=2;c.beginPath();c.moveTo(70,L.qTop);c.lineTo(70,bgc.height);c.stroke();
+  L.qs.forEach(q=>{c.fillStyle="#D6453D";c.font="800 22px 'Baloo 2', sans-serif";c.fillText(String(q.i+1),30,L.qTop+(q.row+1)*34-8);
+    c.fillStyle="#1E2B3A";c.font="26px 'Patrick Hand', cursive";q.lines.forEach((t,j)=>c.fillText(t,86,L.qTop+(q.row+j+1)*34-8))});
+}
+function setHeight(hh,keep){ // resize both layers, optionally keeping what's on them
+  let tb,ti;if(keep){tb=document.createElement("canvas");tb.width=900;tb.height=bgc.height;tb.getContext("2d").drawImage(bgc,0,0);
+    ti=document.createElement("canvas");ti.width=900;ti.height=cv.height;ti.getContext("2d").drawImage(cv,0,0)}
+  bgc.height=cv.height=hh;bctx.fillStyle="#fff";bctx.fillRect(0,0,900,hh);
+  if(keep){bctx.drawImage(tb,0,0);ctx.drawImage(ti,0,0)}
+}
+function composite(){const c=document.createElement("canvas");c.width=900;c.height=cv.height;const x=c.getContext("2d");x.drawImage(bgc,0,0);x.drawImage(cv,0,0);return c}
+const pngBlob=c=>new Promise(r=>c.toBlob(r,"image/png"));
+async function setupCanvas(h){
+  const my=++token;
+  if(document.fonts)await Promise.all([document.fonts.load("26px 'Patrick Hand'"),document.fonts.load("700 28px 'Baloo 2'"),document.fonts.load("800 22px 'Baloo 2'")]).catch(()=>{});
+  let bg=null;if(h.sheet){try{bg=await loadImg(src(h.sheet))}catch(e){}}
+  const ld=ls.get("hwd-draft:"+h.id);
+  const cands=[
+    ld&&ld.ink?{at:ld.at,ink:ld.ink,bg:ld.bg||null}:ld&&ld.url?{at:ld.at,bg:ld.url}:null,
+    h.draftInk?{at:h.draftAt||0,ink:src(h.draftInk),bg:h.draftBg?src(h.draftBg):null}:h.draft?{at:h.draftAt||0,bg:src(h.draft)}:null,
+    h.imageInk?{at:Date.parse(h.doneAt)||0,ink:src(h.imageInk),bg:h.imageBg?src(h.imageBg):null}:h.image?{at:Date.parse(h.doneAt)||0,bg:src(h.image)}:null
+  ].filter(Boolean).sort((a,b)=>b.at-a.at);
+  const d=cands[0]||{};
+  let bimg=null,iimg=null;
+  if(d.bg){try{bimg=await loadImg(d.bg)}catch(e){}}
+  if(d.ink){try{iimg=await loadImg(d.ink)}catch(e){}}
+  if(bimg&&bimg.naturalWidth!==900)bimg=null;if(iimg&&iimg.naturalWidth!==900)iimg=null;
+  if(my!==token||!$("#sheet"))return;
+  H=h;cv=$("#sheet");ctx=cv.getContext("2d");bgc=$("#sheetBg");bctx=bgc.getContext("2d");
+  const L=layout(h,bg);H.L=L;H.bg=bg;
+  bgc.width=cv.width=900;setHeight(Math.max(L.height,bimg?bimg.naturalHeight:0,iimg?iimg.naturalHeight:0));
+  paintPaper(h,bg,L);bgCustom=!!bimg;if(bimg)bctx.drawImage(bimg,0,0);if(iimg)ctx.drawImage(iimg,0,0);
+  undo=[];drawing=false;
+  const setTool=t=>{tool=t;document.querySelectorAll(".tool[data-t]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.t===t));
+    cv.style.touchAction=t==="hand"?"pan-x pan-y pinch-zoom":"none";cv.style.cursor=t==="hand"?"grab":t==="text"?"text":"crosshair";
+    const sl=$("#size");sl.disabled=sizes[t]==null;if(sizes[t]!=null)sl.value=sizes[t];
+    $("#sizeLbl").textContent={pen:"Pen size",marker:"Highlighter size",eraser:"Eraser size",text:"Text size"}[t]||"Size";showDot()};
+  setTool(tool==="hand"?"pen":tool);
+  document.querySelectorAll(".tool[data-t]").forEach(b=>b.onclick=()=>setTool(b.dataset.t));
+  document.querySelectorAll(".swatch").forEach(b=>b.onclick=()=>{color=b.dataset.c;document.querySelectorAll(".swatch").forEach(x=>x.setAttribute("aria-pressed",x===b));if(tool==="eraser"||tool==="hand")setTool("pen");showDot()});
+  $("#size").oninput=e=>{if(sizes[tool]!=null){sizes[tool]=+e.target.value;showDot()}};$("#size").onchange=()=>ls.set("hwd-sizes",sizes);
+  $("#undo").onclick=()=>{const u=undo.pop();if(!u)return;
+    if(u.height!==cv.height)setHeight(u.height);if(u.bg){bctx.putImageData(u.bg,0,0);bgCustom=u.custom}
+    ctx.clearRect(0,0,cv.width,cv.height);ctx.putImageData(u.ink,0,0);saveDraftSoon()};
+  let rArm=false;$("#clear").onclick=()=>{const c=$("#clear");
+    if(!rArm){rArm=true;c.textContent="Tap again to wipe the sheet";setTimeout(()=>{rArm=false;const x=$("#clear");if(x)x.textContent="↺ Reset sheet"},3000);return}
+    rArm=false;c.textContent="↺ Reset sheet";push(true);setHeight(L.height);paintPaper(h,bg,L);bgCustom=false;saveDraftSoon();toast("Sheet reset. Undo brings it back.")};
+  $("#photo").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;toast("Adding it to the sheet…");
+    try{const s=await fileToSheet(f);const u=URL.createObjectURL(s.blob);const img=await loadImg(u);appendPage(img);URL.revokeObjectURL(u);
+      toast(s.isPdf&&s.pages>s.shown?`Added the first ${s.shown} pages at the bottom`:"Added at the bottom of the sheet")}catch(err){toast(err.message||"Couldn't add that file.")}};
+  if($("#cloud"))$("#cloud").onclick=async()=>{const b=$("#cloud");b.disabled=true;
+    try{const ink=await upload(await pngBlob(cv));const bgId=bgCustom?await upload(await toBlob(bgc,.8)):"";const at=Date.now();
+      await patch("homework",h.id,{draftInk:ink,draftBg:bgId,draft:"",draftAt:at});ls.del("hwd-draft:"+h.id);toast("Saved. Open this homework on the other device to carry on.")}
+    catch(err){toast(err.message||"Couldn't save. Try again.")}b.disabled=false};
+  cv.onpointerdown=down;cv.onpointermove=move;cv.onpointerup=cv.onpointercancel=up;
+  ["c1","c2","c3"].forEach(id=>$("#"+id).onchange=()=>{$("#handin").disabled=!["c1","c2","c3"].every(x=>$("#"+x).checked)});
+  $("#msg").oninput=()=>{$("#msgKind").hidden=!isUnkind($("#msg").value)};
+  $("#handin").onclick=()=>handIn(h);
+}
+function showDot(){const d=$("#sizeDot span");if(!d||!cv)return;const v=sizes[tool];if(v==null){d.style.cssText="display:none";return}
+  const px=Math.max(3,Math.min(44,v*cv.getBoundingClientRect().width/900*(tool==="text"?.6:1)));
+  d.style.cssText=`display:block;width:${px}px;height:${px}px;border-radius:50%;background:${tool==="eraser"?"transparent":color};border:${tool==="eraser"?"2px dashed var(--muted)":"0"};opacity:${tool==="marker"?.4:1}`}
+function markStarted(){if(!H||H.startSent||H.startedAt||H.done)return;H.startSent=true;patch("homework",H.id,{startedAt:Date.now()}).catch(()=>{H.startSent=false})}
+function appendPage(img){
+  const extra=Math.round(img.naturalHeight*860/img.naturalWidth)+40,old=cv.height;
+  if(old+extra>14000){toast("The sheet is full. Hand this in, or start again.");return}
+  push(true);setHeight(old+extra,true);bctx.drawImage(img,20,old+20,860,extra-40);bgCustom=true;saveDraftSoon();markStarted();
+}
+const pos=e=>{const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height}};
+function push(withBg){try{undo.push({height:cv.height,ink:ctx.getImageData(0,0,cv.width,cv.height),bg:withBg?bctx.getImageData(0,0,bgc.width,bgc.height):null,custom:bgCustom});if(undo.length>10)undo.shift()}catch(e){}}
+function down(e){
+  if(tool==="hand")return;
+  if(e.pointerType==="pen")penSeen=true;
+  if(penSeen&&e.pointerType==="touch")return; // palm rejection once a pencil is used
+  if(tool==="text"){placeText(e);return}
+  e.preventDefault();push();drawing=true;last=pos(e);cv.setPointerCapture(e.pointerId);stroke(e);markStarted();
+}
+function stroke(e){
+  const p=pos(e);const pr=e.pointerType==="pen"&&e.pressure>0?.5+e.pressure:1;
+  ctx.lineCap=ctx.lineJoin="round";
+  if(tool==="eraser"){ctx.globalCompositeOperation="destination-out";ctx.globalAlpha=1;ctx.strokeStyle="#000";ctx.lineWidth=sizes.eraser}
+  else if(tool==="marker"){ctx.globalAlpha=.3;ctx.strokeStyle=color;ctx.lineWidth=sizes.marker}
+  else{ctx.globalAlpha=1;ctx.strokeStyle=color;ctx.lineWidth=sizes.pen*pr}
+  ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x+.01,p.y);ctx.stroke();
+  ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";last=p;
+}
+function move(e){if(!drawing)return;e.preventDefault();(e.getCoalescedEvents?e.getCoalescedEvents():[e]).forEach(ev=>stroke(ev.clientX===undefined?e:ev))}
+function up(){if(drawing){drawing=false;saveDraftSoon()}}
+function placeText(e){
+  const old=$("#tb");if(old)old.blur();
+  const p=pos(e),sr=$("#stage").getBoundingClientRect();
+  const inp=document.createElement("input");inp.className="textbox";inp.id="tb";inp.placeholder="Type, then press Enter";
+  inp.style.left=Math.min(e.clientX-sr.left,sr.width-180)+"px";inp.style.top=(e.clientY-sr.top-20)+"px";
+  $("#stage").appendChild(inp);setTimeout(()=>inp.focus(),0);
+  let done=false;const commit=()=>{if(done)return;
+    if(isUnkind(inp.value)){inp.classList.add("unkind");kindNudge();setTimeout(()=>inp.focus(),0);return}
+    done=true;if(inp.value.trim()){push();ctx.fillStyle=color;ctx.font=sizes.text+"px 'Patrick Hand', cursive";ctx.fillText(inp.value,p.x,p.y+8);saveDraftSoon();markStarted()}inp.remove()};
+  inp.oninput=()=>inp.classList.toggle("unkind",isUnkind(inp.value));
+  inp.onkeydown=ev=>{if(ev.key==="Enter")commit();if(ev.key==="Escape"){done=true;inp.remove()}};inp.onblur=commit;
+}
+function saveDraftSoon(){clearTimeout(draftT);const id=H.id;draftT=setTimeout(()=>{if(!cv||H.id!==id)return;
+  if(!ls.set("hwd-draft:"+id,{at:Date.now(),ink:cv.toDataURL("image/png"),bg:bgCustom?bgc.toDataURL("image/jpeg",.7):null}))ls.del("hwd-draft:"+id)},700)}
+async function handIn(h){
+  if(isUnkind($("#msg").value)){$("#msgKind").hidden=false;kindNudge();$("#msg").focus();return}
+  const b=$("#handin");b.disabled=true;b.textContent="Handing in…";
+  try{const id=await upload(await toBlob(composite()));const ink=await upload(await pngBlob(cv));const bgId=bgCustom?await upload(await toBlob(bgc,.8)):"";
+    await patch("homework",h.id,{done:true,image:id,imageInk:ink,imageBg:bgId,msg:$("#msg").value.trim(),doneAt:new Date().toISOString(),feedback:"",sticker:""});
+    ls.del("hwd-draft:"+h.id);toast("Handed in to "+h.teacher)}
+  catch(err){toast(err.message||"Couldn't hand it in. Try again.");b.disabled=false;b.textContent="Hand in homework"}
+}
+
+/* ---------- kindness check on what children type ---------- */
+const UNKIND=["stupid","stoopid","stupd","idiot","dumb","dumbo","dummy","moron","loser","ugly","fatso","fatty","shut up","hate you","i hate u","you suck","sucks","jerk","freak","weirdo","crap","poo head","poop head","damn","hell","shit","shitty","fuck","fucking","bitch","bastard","ass","arse","asshole","dick","piss","bloody","retard","go away","get lost","nobody likes you","pagal","gadha","gadhe","kutta","kutte","kamina","kamine","ullu","bewakoof","besharam"];
+const LEET={"0":"o","1":"i","3":"e","4":"a","@":"a","5":"s","$":"s","7":"t","8":"b"};
+const UNKIND_RE=new RegExp("(^|[^a-z])("+UNKIND.map(w=>w.split("").map(ch=>ch===" "?"[^a-z]*":ch+"+").join("")).join("|")+")(?=[^a-z]|$)");
+function isUnkind(t){if(!t)return false;const n=String(t).toLowerCase().replace(/[0134@5$78]/g,c=>LEET[c]);return UNKIND_RE.test(n)}
+function kindNudge(){toast("💛 That's not kind. Try saying it in a nicer way.")}
+
+/* ---------- teacher side ---------- */
+function openChild(kid,hw){mode="child";ls.set("hwd-mode",mode);cur.kid=kid;cur.hw=hw||null;renderKids();renderAccounts();renderInbox();fillKidSelects();renderMode();window.scrollTo({top:0})}
+function renderTList(){
+  $("#tkids").innerHTML=kidsSorted().map((k,i)=>`<button class="kid" data-k="${k.id}"><span class="avatar" style="background:${AV[i%AV.length]}">${esc((k.name||"?")[0])}</span><span style="text-align:left;line-height:1.1">${esc(k.name)}<small style="display:block;font-weight:400;font-size:12px;color:var(--muted)">${esc(kidLine(k))}</small></span></button>`).join("")||'<p class="note">No children yet.</p>';
+  $("#tkids").querySelectorAll(".kid").forEach(b=>b.onclick=()=>openChild(b.dataset.k));
+  const list=[...S.homework].sort((a,b)=>(b.created||0)-(a.created||0));
+  $("#tlist").innerHTML=list.length?list.map(h=>{const k=kidOf(h.kid);
+    const pill=h.done&&!h.feedback?`<span class="pill due">To mark</span>`:h.done?`<span class="pill in">Marked</span>`:`<span class="pill">Waiting</span>`;
+    return`<button class="item ${h.done?"done":""}" data-h="${h.id}" aria-current="${h.id===tv.hw}"><span class="stripe"></span>
+    <span><b>${esc(h.title)}</b><span class="sub">${esc(k?k.name:"Unknown child")} · ${esc(h.subject)}${h.due?" · "+esc(dueText(h)):""}</span></span>${pill}</button>`}).join("")
+    :`<p class="note">Nothing set yet.</p>`;
+  $("#tlist").querySelectorAll(".item").forEach(b=>b.onclick=()=>{tv.hw=b.dataset.h;renderTList();renderTMain()});
+}
+$("#newHw").onclick=()=>{tv.hw=null;renderTList();renderTMain();$("#fKid")&&$("#fKid").focus()};
+let pending=null,qn=0;
+function qRow(v=""){const li=document.createElement("li");const id="q"+(++qn);
+  li.innerHTML=`<div><input type="text" class="q" id="${id}" aria-label="Question" placeholder="Type a question" value="${esc(v)}"><button type="button" class="btn ghost small" aria-label="Remove question">✕</button></div>`;
+  li.querySelector("button").onclick=()=>li.remove();
+  li.querySelector("input").addEventListener("paste",e=>{const t=(e.clipboardData||{}).getData?e.clipboardData.getData("text"):"";const parts=t.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    if(parts.length>1){e.preventDefault();e.target.value=parts[0];let at=li;parts.slice(1).forEach(p=>{const n=qRow(p);at.after(n);at=n})}});
+  return li}
+function renderTMain(){
+  const m=$("#tmain");
+  if(!ready){m.innerHTML='<p class="note">Loading homework…</p>';return}
+  if(tv.hw){const h=hwOf(tv.hw);tSig=sigT(h);if(!h){m.innerHTML='<p class="note">Sending…</p>';return}return renderReview(h)}
+  tSig=null;pending=null;
+  m.innerHTML=`<h2>Set new homework</h2>
+   ${S.kids.length?"":`<p class="note">There are no children yet. Switch to <b>Child &amp; parent</b> and use <b>+ Add a child</b> first.</p>`}
+   <form class="form" id="hwForm">
+     <div class="two">
+       <div><label for="fKid" class="label">For</label><select id="fKid" required></select></div>
+       <div><label for="fTeacher" class="label">Teacher's name</label><input id="fTeacher" type="text" placeholder="e.g. Ms. Fernandes" required></div>
+     </div>
+     <div class="two">
+       <div><label for="fSubject" class="label">Subject</label><input id="fSubject" type="text" list="subjects" placeholder="e.g. Maths" required></div>
+       <div><div class="label">Due</div><div class="row" style="flex-wrap:nowrap;gap:8px">
+         <input id="fDue" type="date" aria-label="Due date" style="flex:1.4">
+         <input id="fDueTime" type="time" aria-label="Due time" value="08:00" style="flex:1;width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--page);min-height:42px"></div></div>
+     </div>
+     <label for="fTitle" class="label">Title</label>
+     <input id="fTitle" type="text" placeholder="e.g. Column addition: 3-digit numbers" required>
+     <label for="fNote" class="label">Instructions</label>
+     <textarea id="fNote" placeholder="What should they do? e.g. Show your working and draw a box around each answer."></textarea>
+     <div class="label" style="margin-top:6px">Questions</div>
+     <p class="note">Each question is printed on the child's sheet with space to answer. You can paste a list and it splits into separate questions.</p>
+     <ol class="qlist" id="qList"></ol>
+     <div><button type="button" class="btn" id="addQ">+ Add question</button></div>
+     <div class="label" style="margin-top:6px">Worksheet (optional)</div>
+     <label class="drop" for="fFile" id="drop">📄 Upload a photo or PDF of the worksheet
+       <small>iPad: take a photo, pick from Photos, or choose from Files. PC: choose a file or drag it here. PDFs show up to 4 pages.</small></label>
+     <input type="file" id="fFile" accept="image/*,application/pdf" hidden>
+     <div id="fPreview"></div>
+     <div class="row" style="margin-top:8px"><button class="btn primary" id="sendHw" type="submit">Send homework</button></div>
+   </form>`;
+  fillKidSelects();
+  if(cur.kid&&kidOf(cur.kid))$("#fKid").value=cur.kid;
+  $("#fTeacher").value=ls.get("hwd-teacher")||"";
+  const ql=$("#qList");ql.append(qRow(),qRow(),qRow());
+  $("#addQ").onclick=()=>{const r=qRow();ql.append(r);r.querySelector("input").focus()};
+  const handle=async f=>{if(!f)return;$("#fPreview").innerHTML='<p class="note">Reading the file…</p>';
+    try{const s=await fileToSheet(f);pending={...s,file:f};const u=URL.createObjectURL(s.blob);
+      $("#fPreview").innerHTML=`<div class="preview"><img src="${u}" alt="Worksheet preview"><div><b>${esc(f.name||"Photo")}</b>
+        <p class="note">${s.isPdf?`${s.pages} page${s.pages>1?"s":""}${s.pages>s.shown?`, first ${s.shown} shown on the sheet`:""}`:"Photo"}</p>
+        <button type="button" class="btn ghost small" id="rmFile">Remove</button></div></div>`;
+      $("#rmFile").onclick=()=>{pending=null;$("#fPreview").innerHTML=""}}
+    catch(err){pending=null;$("#fPreview").innerHTML=`<p class="note" style="color:var(--teacher)">${esc(err.message||"That file couldn't be read.")}</p>`}};
+  $("#fFile").onchange=e=>{handle(e.target.files[0]);e.target.value=""};
+  const d=$("#drop");d.ondragover=e=>{e.preventDefault();d.classList.add("over")};d.ondragleave=()=>d.classList.remove("over");
+  d.ondrop=e=>{e.preventDefault();d.classList.remove("over");handle(e.dataTransfer.files[0])};
+  $("#hwForm").onsubmit=async e=>{e.preventDefault();
+    const kid=$("#fKid").value;if(!kid){toast("Choose which child this is for.");return}
+    const b=$("#sendHw");b.disabled=true;b.textContent="Sending…";
+    try{
+      let sheet="",files=[];
+      if(pending){sheet=await upload(pending.blob);
+        if(pending.isPdf){try{files=[{name:pending.file.name,id:await upload(pending.file)}]}catch(err){files=[{name:pending.file.name,id:sheet}]}}
+        else files=[{name:pending.file.name||"Worksheet photo",id:sheet}]}
+      const teacher=$("#fTeacher").value.trim();ls.set("hwd-teacher",teacher);
+      const id="h"+uid();
+      await put("homework",id,{kid,teacher,subject:$("#fSubject").value.trim(),title:$("#fTitle").value.trim(),due:$("#fDue").value,dueTime:$("#fDue").value?$("#fDueTime").value:"",
+        note:$("#fNote").value.trim(),questions:[...document.querySelectorAll("#qList .q")].map(i=>i.value.trim()).filter(Boolean),
+        sheet,files,created:Date.now(),done:false});
+      tv.hw=id;renderTList();renderTMain();toast("Sent to "+(kidOf(kid)||{}).name);
+    }catch(err){toast(err.message||"Couldn't send it. Try again.");b.disabled=false;b.textContent="Send homework"}
+  };
+}
+function renderReview(h){
+  const k=kidOf(h.kid)||{name:"Unknown child"};
+  $("#tmain").innerHTML=`<div class="review form" style="gap:12px">
+   <div class="row" style="justify-content:space-between">
+     <div><div class="label">${esc(k.name)} · ${esc(h.subject)}${h.due?" · Due "+esc(dueText(h)):""} ${h.example?'<span class="example">Example</span>':""}</div><h2>${esc(h.title)}</h2></div>
+     <div class="row"><button class="btn" id="asChild">Open ${esc(k.name)}'s page</button><button class="btn danger" id="del">Delete</button><button class="btn ghost" id="tback">Close</button></div>
+   </div>
+   ${teacherNote(h)}
+   ${h.sheet?`<img class="work" src="${esc(src(h.sheet))}" alt="Worksheet sent" style="max-width:220px">`:""}
+   ${h.done?`<div class="done-box"><h3>${esc(k.name)} handed in ${esc(fmtTime(h.doneAt))}</h3>
+       <a href="${esc(src(h.image))}" target="_blank" rel="noopener"><img class="work" src="${esc(src(h.image))}" alt="${esc(k.name)}'s finished homework"></a>
+       <p class="note">Tap the picture to open it full size.</p>
+       ${h.msg?`<div class="fb"><div class="label">${esc(k.name)} wrote</div><p>${esc(h.msg)}</p></div>`:""}
+       <form class="form" id="fbForm"><div class="label">Your feedback</div>
+         <div class="stickers">${Object.entries(STICKERS).map(([key,t])=>`<label><input type="radio" name="st" value="${key}" ${h.sticker===key?"checked":""}>${t}</label>`).join("")}</div>
+         <label for="fbText" class="note">Comment</label>
+         <textarea id="fbText" placeholder="e.g. Lovely neat working. Check number 4 again.">${esc(h.feedback)}</textarea>
+         <p class="note">Choosing <b>Please try again</b> sends it back so ${esc(k.name)} can fix it.</p>
+         <div class="row"><button class="btn primary" type="submit">${h.feedback?"Update feedback":"Send feedback"}</button></div></form></div>`
+     :`<p class="note">${h.sticker==="again"?`Sent back to ${esc(k.name)} to try again.`:`Waiting for ${esc(k.name)} to hand it in.`}</p>${h.feedback||h.sticker?feedbackBox(h):""}`}
+  </div>`;
+  $("#tback").onclick=()=>{tv.hw=null;renderTList();renderTMain()};
+  $("#asChild").onclick=()=>openChild(h.kid,h.id);
+  let armed=false;$("#del").onclick=async()=>{if(!armed){armed=true;$("#del").textContent="Tap again to delete";setTimeout(()=>{armed=false;const d=$("#del");if(d)d.textContent="Delete"},4000);return}
+    try{await removeDoc("homework",h.id);tv.hw=null;renderTList();renderTMain();toast("Homework deleted")}catch(e){toast("Couldn't delete it. Try again.")}};
+  if($("#fbForm"))$("#fbForm").onsubmit=async e=>{e.preventDefault();const st=(document.querySelector('input[name="st"]:checked')||{}).value||"";
+    const fb=$("#fbText").value.trim();if(!st&&!fb){toast("Pick a sticker or write a comment.");return}
+    try{await patch("homework",h.id,{feedback:fb,sticker:st,feedbackAt:new Date().toISOString(),...(st==="again"?{done:false}:{})});toast(st==="again"?"Sent back to try again":"Feedback sent")}
+    catch(err){toast("Couldn't send feedback. Try again.")}};
+}
+
+/* ---------- forms in the child panel ---------- */
+$("#kidYear").innerHTML=yearOptions("");$("#kidAge").innerHTML=ageOptions("");
+$("#kidForm").onsubmit=async e=>{e.preventDefault();const id="k"+uid();
+  try{await put("kids",id,{name:$("#kidName").value.trim(),year:$("#kidYear").value,age:+$("#kidAge").value,created:Date.now()});
+    cur.kid=id;cur.hw=null;e.target.reset();$("#addKid").open=false;$("#addAcct").open=true;onData();renderWork()}catch(err){toast("Couldn't add the child. Try again.")}};
+$("#acctForm").onsubmit=async e=>{e.preventDefault();const kid=$("#acctKid").value;if(!kid){toast("Add a child first.");return}
+  try{await put("accounts","a"+uid(),{kid,type:$("#acctType").value,email:$("#acctEmail").value.trim()});cur.kid=kid;$("#acctEmail").value="";$("#addAcct").open=false}catch(err){toast("Couldn't link the account. Try again.")}};
+
+init();
+</script>
+
+</body>
+</html>
